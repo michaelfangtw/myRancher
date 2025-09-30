@@ -1,13 +1,12 @@
-version: '2'
-
 services:
   rancher:
-    image: rancher/rancher:latest
+    image: rancher/rancher:v2.8.5 # FIX 1: Use a specific stable version
     container_name: rancher
     restart: always
-    ports:
-    - "8080:80/tcp"
-    - "8443:443/tcp"
     volumes:
     - ./rancher-data:/var/lib/rancher
+    ports:
+    - "80:80"
+    - "443:443"
     privileged: true
+    #network_mode: host # FIX 2: Use the standard Docker Compose syntax
