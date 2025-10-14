@@ -78,10 +78,79 @@ The `docker-compose.yaml` file contains the configuration for the Rancher servic
 *   **Restart Policy:** `always` - Ensures that the Rancher container will always restart if it stops.
 *   **Privileged:** `true` - Gives the container extended privileges, which may be required for certain Rancher operations.
 
+
+## Install Minikube
+
+```bash
+curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+minikube start
+```
+
+### Check Local Minikube Status
+
+```bash
+minikube status
+```
+
+Expected output:
+
+```
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+```
+## Add Local Minikube to Rancher
+
+1. In Rancher, go to **Global Settings** and set the server URL to your local network IP (e.g., `192.168.68.230`)
+2. Navigate to **Cluster Manager** > **Import Existing**
+3. Set the cluster name to `local-minikube`
+4. Copy and run the import command:
+
+   ```bash
+   curl --insecure -sfL https://localhost/v3/import/dwg6tsm4gslfbd65g2kpzlkwbs29l9vhg9829cbpbtqtxr52v7dj7b_c-m-v4x5zf6m.yaml | kubectl apply -f -
+   ```
+
+### Verify Kubernetes Namespaces
+
+After importing, check that the Rancher namespaces were created:
+
+```bash
+kubectl get ns
+```
+
+Expected output:
+
+```
+NAME                          STATUS   AGE
+cattle-fleet-system           Active   14m
+cattle-impersonation-system   Active   14m
+cattle-system                 Active   14m
+default                       Active   30m
+kube-node-lease               Active   30m
+kube-public                   Active   30m
+kube-system                   Active   30m
+local                         Active   14m
+```
+
+### Troubleshooting
+
+If the local-minikube cluster status is still pending (because Rancher cannot access localhost), delete the cattle-system namespace and re-import:
+
+```bash
+kubectl delete ns cattle-system
+```
+
+Then repeat the steps in "Add Local Minikube to Rancher".
+
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-[MIT](https.choosealicense.com/licenses/mit/)
+[MIT](https://choosealicense.com/licenses/mit/)
